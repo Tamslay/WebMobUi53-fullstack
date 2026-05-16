@@ -1,50 +1,59 @@
 <script setup>
-  import { usePollStore } from '@/stores/usePollStore';
+import { ref } from 'vue';
+import { useFetchApi } from '@/composables/useFetchApi';
 
-  const { polls, deletePoll } = usePollStore();
+const props = defineProps({
+    polls: { type: Array, required: true },
+});
 
-  async function delPoll(id) {
-    console.log('delete Poll ID:', id);
-    await deletePoll(id);
-  }
+const emit = defineEmits(['delete', 'edit']);
+
+const { fetchApi } = useFetchApi();
+
+function shareLink(poll) {
+    return window.location.origin + '/polls/' + poll.secret_token;
+}
+
+function copyLink(poll) {
+    navigator.clipboard.writeText(shareLink(poll));
+}
 </script>
 
 <template>
-  <p v-if="polls.length === 0">Aucun sondage.</p>
+    <div class="space-y-4">
+        <p v-if="polls.length === 0">Aucun sondage.</p>
 
-  <table v-else class="w-full border-collapse text-left">
-    <thead>
-      <tr>
-        <th class="border px-3 py-2">Actions</th>
-        <th class="border px-3 py-2">ID</th>
-        <th class="border px-3 py-2">Titre</th>
-        <th class="border px-3 py-2">Question</th>
-        <th class="border px-3 py-2">Brouillon</th>
-        <th class="border px-3 py-2">Debut</th>
-        <th class="border px-3 py-2">Fin</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="poll in polls" :key="poll.id">
-        <td class="border px-3 py-2"><button @click="delPoll(poll.id)">Supp.</button></td>
-        <td class="border px-3 py-2">{{ poll.id }}</td>
-        <td class="border px-3 py-2">{{ poll.title || '-' }}</td>
-        <td class="border px-3 py-2">{{ poll.question }}</td>
-        <td class="border px-3 py-2">{{ poll.is_draft ? 'Oui' : 'Non' }}</td>
-        <td class="border px-3 py-2">{{ poll.started_at || '-' }}</td>
-        <td class="border px-3 py-2">{{ poll.ends_at || '-' }}</td>
-      </tr>
-    </tbody>
-  </table>
+        <div v-for="poll in polls" :key="poll.id" class="border rounded p-4">
+            <div class="flex justify-between items-start flex-wrap gap-2">
+                <div>
+                    <p class="font-semibold">{{ poll.question }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ poll.is_draft ? 'Brouillon' : 'Lancé' }}
+                        <span v-if="poll.ends_at"> · Fin : {{ new Date(poll.ends_at).toLocaleString() }}</span>
+                    </p>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button
+                        v-if="!poll.is_draft"
+                        @click="copyLink(poll)"
+                        class="px-3 py-1 bg-gray-100 rounded text-sm"
+                    >
+                        Copier le lien
+                    </button>
+                    <button
+                        @click="emit('edit', poll)"
+                        class="px-3 py-1 bg-yellow-400 rounded text-sm"
+                    >
+                        Modifier
+                    </button>
+                    <button
+                        @click="emit('delete', poll.id)"
+                        class="px-3 py-1 bg-red-500 text-white rounded text-sm"
+                    >
+                        Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
-
-<style scoped>
-  button {
-    background-color: #e3342f;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-  }
-</style>

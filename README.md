@@ -5,73 +5,17 @@ _"[Développement de produit média (DévProdMéd)](https://github.com/heig-vd-d
 enseigné à la
 [Haute Ecole d'Ingénierie et de Gestion du Canton de Vaud (HEIG-VD)](https://heig-vd.ch),
 Suisse.
+L'application est accessible sur http://127.0.0.1:8000
 
-## Objectif du mini-projet
+## Choix techniques
 
-L'objectif de ce mini-projet est de créer un réseau social simple en utilisant le
-framework [Laravel](https://laravel.com/). Ce projet permettra de mettre en pratique les concepts
-appris dans le cours.
+- **Deux applications Vue.js séparées** : une pour le dashboard, une pour la page de votes, car les deux pages sont indépendantes et n'on pas besoin de partager d'état
+- **Store `usePollStore`** : centralise toutes les opérations sur les sondages (liste, création, modification, suppression), ca permet de ne pas dupliquer la logique dans les compsants
+- **Composable `usePolling`** : utilisé pour rafraîchir les résultats toutes les 5 secondes, c'est la solution la plus simple pour afficher les résultats en temps réel.
+- **Graphique en barres CSS** : sans librairie externe, chaque barre est une div dont la largeur est calculée en pourcentage selon le nombre de vote
+- **Un seul contrôleur API `ApiPollController`** : regroupe toutes les opérations sur les sondages pour garder le backend simple et lisible.
 
-## Pré-requis
+## Utilisation de l'IA
 
-Afin de lancer ce projet, une stack compatible avec Laravel, est requise.
-
-Voici les pré-requis nécessaires :
-
-- PHP >= 8.0.
-- Composer.
-- Node.js et npm.
-- Une base de données (MySQL, PostgreSQL, SQLite, etc.).
-- Un serveur web (Apache, Nginx, etc.).
-
-[Laravel Herd](https://helm.sh/docs/charts/laravel/) est recommandé pour une installation facile de Laravel et de ses dépendances.
-
-## Développement local
-
-Pour développer et tester le mini-projet en local, voici les étapes à suivre :
-
-1. Forker ce dépôt
-
-2. Installer les dépendances avec npm et Composer :
-
-    ```bash
-    npm install && npm run build
-
-    composer install
-    ```
-
-3. Copier le fichier `.env.example` en `.env`.
-4. Modifier les variables d'environnement si nécessaire (optionnel).
-5. Générer la clé d'application Laravel :
-
-    ```bash
-    php artisan key:generate
-    ```
-
-6. Créer le lien symbolique pour les fichiers téléversés :
-
-    ```bash
-    php artisan storage:link
-    ```
-
-7. Créer la base de données et exécuter les migrations :
-
-    ```bash
-    php artisan migrate
-    ```
-
-    S'il est nécessaire de réinitialiser la base de données, utiliser la commande `php artisan migrate:reset` puis `php artisan migrate` à nouveau.
-
-8. Optionnel : en mode développement, il est possible de peupler la base de données avec des données fictives :
-
-    ```bash
-    php artisan db:seed
-    ```
-
-9. Démarrer le serveur de développement Laravel :
-
-    ```bash
-    composer run dev
-    ```
-
-L'application sera accessible à l'adresse <http://127.0.0.1:8000>.
+L'IA a été utilisée comme assistant tout au long du développement, notamment pour débuguer et structurer l'architecture ou parfois générer du code (par exemple pour le graphique car je ne savais pas comment m'y prendre). 
+Mais quoi qu'il en soit, ce sur quoi l'ia m'a aidé a été compris, relu et validé avant d'être intégrée au projet.

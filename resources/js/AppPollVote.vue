@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useFetchApi } from '@/composables/useFetchApi';
+import { usePolling } from '@/composables/usePolling';
 
 const props = defineProps({
     token: { type: String, required: true },
@@ -16,7 +17,6 @@ const loading = ref(true);
 const selectedOptions = ref([]);
 const voteError = ref(null);
 const voteSuccess = ref(false);
-let pollInterval = null;
 
 const isExpired = computed(() => {
     if (!poll.value?.ends_at) return false;
@@ -84,12 +84,9 @@ function getPercent(option) {
 
 onMounted(async () => {
     await loadPoll();
-    pollInterval = setInterval(loadPoll, 5000);
 });
 
-onUnmounted(() => {
-    clearInterval(pollInterval);
-});
+usePolling(loadPoll, 5000);
 </script>
 
 <template>

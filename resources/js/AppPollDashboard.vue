@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { useFetchApi } from '@/composables/useFetchApi';
+import { usePollStore } from '@/stores/usePollStore';
 import PollTable from '@/components/PollTable.vue';
 import PollForm from '@/components/PollForm.vue';
 
@@ -8,9 +8,10 @@ const props = defineProps({
     polls: { type: Array, default: () => [] },
 });
 
-const { fetchApi } = useFetchApi();
+const { polls, setPolls, createPoll, updatePoll, deletePoll } = usePollStore();
 
-const polls = ref(props.polls);
+setPolls(props.polls);
+
 const view = ref('list');
 const editingPoll = ref(null);
 const formError = ref(null);
@@ -37,20 +38,9 @@ async function handleSubmit(data) {
     formError.value = null;
     try {
         if (editingPoll.value) {
-            const updated = await fetchApi({
-                url: '/polls/' + editingPoll.value.id,
-                method: 'PUT',
-                data,
-            });
-            const index = polls.value.findIndex(p => p.id === editingPoll.value.id);
-            if (index !== -1) polls.value[index] = updated;
+            await updatePoll(editingPoll.value.id, data);
         } else {
-            const created = await fetchApi({
-                url: '/polls',
-                method: 'POST',
-                data,
-            });
-            polls.value.unshift(created);
+            await createPoll(data);
         }
         showList();
     } catch (e) {
@@ -61,8 +51,7 @@ async function handleSubmit(data) {
 async function handleDelete(id) {
     if (!confirm('Supprimer ce sondage ?')) return;
     try {
-        await fetchApi({ url: '/polls/' + id, method: 'DELETE' });
-        polls.value = polls.value.filter(p => p.id !== id);
+        await deletePoll(id);
     } catch (e) {
         alert('Erreur lors de la suppression.');
     }
